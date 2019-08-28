@@ -1,0 +1,105 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    compileSdkVersion 28
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    defaultConfig {
+        applicationId "com.spark.zj.is.school"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode flutterVersionCode.toInteger() *10000 + Integer.parseInt('git rev-list --count HEAD'.execute([], project.rootDir).text.trim())
+        versionName flutterVersionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs{
+        release{
+            storeFile file("zhianxiaoyuan.keystore")
+            storePassword "zhianxiaoyuan"
+            keyAlias "zhianxiaoyuan"
+            keyPassword "zhianxiaoyuan"
+        }
+    }
+
+    buildTypes {
+        debug{
+
+            applicationIdSuffix ".test"
+            manifestPlaceholders += [
+                    "appName":"智安校园",
+                    XG_ACCESS_ID    : '2100338313',
+                    XG_ACCESS_KEY   : 'AMR1GV19Y56U',
+                    XG_ACCESS_SCHEME: '信鸽统一打开APP行为SCHEME',// 非官方参数，可自定义(例如：fake_push)，统一打开方式为 intent
+                    HW_APPID        : '100924235',
+                    XIAOMI_APPID    : '2882303761518057892',
+                    XIAOMI_APPKEY   : '5111805769892',
+                    PACKAGE_NAME    : "com.spark.zj.is.school.test",// 小米通道
+            ]
+
+            ndk{
+                abiFilters 'armeabi-v7a','x86','arm64-v8a'
+            }
+        }
+        release {
+            signingConfig signingConfigs.release
+            ndk{
+                abiFilters 'armeabi-v7a'//,'x86','arm64-v8a'
+            }
+
+            manifestPlaceholders += [
+                    "appName":"智安校园",
+                    XG_ACCESS_ID    : '2100338462',
+                    XG_ACCESS_KEY   : 'AGE2T1K8U91Z',
+                    XG_ACCESS_SCHEME: '信鸽统一打开APP行为SCHEME',// 非官方参数，可自定义(例如：fake_push)，统一打开方式为 intent
+                    HW_APPID        : '100924255',
+                    XIAOMI_APPID    : '2882303761518056476',
+                    XIAOMI_APPKEY   : '5241805697476',
+                    PACKAGE_NAME    : "com.spark.zj.is.school",// 小米通道
+            ]
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+}

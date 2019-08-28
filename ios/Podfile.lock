@@ -1,0 +1,29 @@
+PODS:
+  - fake_push (0.0.1):
+    - FakeXinGePush (~> 3.3.5)
+    - Flutter
+  - FakeXinGePush (3.3.5)
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - fake_push (from `.symlinks/plugins/fake_push/ios`)
+  - Flutter (from `.symlinks/flutter/ios`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - FakeXinGePush
+
+EXTERNAL SOURCES:
+  fake_push:
+    :path: ".symlinks/plugins/fake_push/ios"
+  Flutter:
+    :path: ".symlinks/flutter/ios"
+
+SPEC CHECKSUMS:
+  fake_push: 38ae4deac561fc9829a00910840a920adfe53933
+  FakeXinGePush: e68341a85f0d672bb93be592e37da18f2b02f611
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+
+PODFILE CHECKSUM: 10ae9c18d12c9ffc2275c9a159a3b1e281990db0
+
+COCOAPODS: 1.6.1

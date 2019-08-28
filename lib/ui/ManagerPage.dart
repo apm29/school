@@ -5,8 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
+import 'package:school/Utils.dart';
 import 'package:school/providers/ApplyListProvider.dart';
-import 'package:school/providers/BlackListProvider.dart';
+import 'package:school/providers/SchoolAlertListProvider.dart';
 import 'package:school/repo/Api.dart';
 import 'package:school/repo/ApplyDetail.dart';
 import 'package:school/widget/gradient_button.dart';
@@ -36,121 +37,91 @@ class _ManagerPageState extends State<ManagerPage> {
           return EasyRefresh(
             controller: _controller,
             header: BezierCircleHeader(),
-            footer: ClassicalFooter(
-              loadedText: "加载完成,下拉加载更多",
-              loadFailedText: "加载失败",
-              noMoreText: "没有更多了",
-              infoText: "更新于 %T",
-              loadText: "下拉加载更多",
-              loadingText: "加载中",
-              loadReadyText: "释放加载",
-            ),
+            footer: classicalFooter,
             firstRefreshWidget: Center(
               child: CircularProgressIndicator(),
             ),
             firstRefresh: true,
-            child: ListView.builder(
-              itemBuilder: (context, index) {
-                var detail = list[index];
-                return Container(
-                  margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                  child: Material(
-                    elevation: 1,
-                    color: Colors.white,
-                    child: ListTile(
-                      isThreeLine: true,
-                      title: Text.rich(
-                        TextSpan(
-                          text: "${detail.nickName}",
-                          children: [
-                            TextSpan(
-                              text: "(${detail.statusString})",
-                              style:
-                                  Theme.of(context).textTheme.caption.copyWith(
-                                        color: detail.statusColor,
-                                      ),
+            child: list.length == 0
+                ? Container(
+                    padding: EdgeInsets.symmetric(vertical: 32),
+                    alignment: Alignment.center,
+                    child: Text("暂无申请"),
+                  )
+                : ListView.builder(
+                    itemBuilder: (context, index) {
+                      var detail = list[index];
+                      return Container(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                        child: Material(
+                          elevation: 1,
+                          color: Colors.white,
+                          child: ListTile(
+                            isThreeLine: true,
+                            title: Text.rich(
+                              TextSpan(
+                                text: "${detail.nickName}",
+                                children: [
+                                  TextSpan(
+                                    text: "(${detail.statusString})",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .caption
+                                        .copyWith(
+                                          color: detail.statusColor,
+                                        ),
+                                  ),
+                                  TextSpan(
+                                      text:
+                                          "\n(${detail.typeString} - ${detail.districtName})",
+                                      style:
+                                          Theme.of(context).textTheme.caption),
+                                ],
+                              ),
                             ),
-                            TextSpan(
+                            subtitle: Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text:
+                                        "审批时间:${getTimeString(detail.approveTime, onNull: "")}",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .caption
+                                        .copyWith(
+                                          color: detail.statusColor,
+                                        ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            trailing: Text.rich(
+                              TextSpan(
                                 text:
-                                    "\n(${detail.typeString} - ${detail.districtName})",
-                                style: Theme.of(context).textTheme.caption),
-                          ],
+                                    "申请时间:${getTimeString(detail.createTime)}",
+                                children: [],
+                              ),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 6),
+                            onTap: () {
+                              if (detail.status == 0) {
+                                showApproveDialog(context, detail);
+                              }else{
+                                showToast("已审核");
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                      subtitle: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text:
-                                  "审批时间:${getTimeString(detail.approveTime, onNull: "")}",
-                              style:
-                                  Theme.of(context).textTheme.caption.copyWith(
-                                        color: detail.statusColor,
-                                      ),
-                            )
-                          ],
-                        ),
-                      ),
-                      trailing: Text.rich(
-                        TextSpan(
-                          text: "申请时间:${getTimeString(detail.createTime)}",
-                          children: [],
-                        ),
-                      ),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                      onTap: () {
-                        if (detail.status == 0)
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text("审核"),
-                                  content: Text("$detail"),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text("取消"),
-                                    ),
-                                    GradientButton(
-                                      Text("通过"),
-                                      onPressed: () async {
-                                        var baseResponse =
-                                            await Api.applyApprove(
-                                                id: detail.id, result: 1);
-                                        showToast(baseResponse.text);
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                    GradientButton(
-                                      Text("拒绝"),
-                                      gradient: LinearGradient(
-                                          colors: [Colors.red, Colors.red]),
-                                      onPressed: () async {
-                                        var baseResponse =
-                                            await Api.applyApprove(
-                                                id: detail.id, result: 2);
-                                        showToast(baseResponse.text);
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              });
-                      },
-                    ),
+                      );
+                    },
+                    itemCount: list.length,
                   ),
-                );
-              },
-              itemCount: list.length,
-            ),
             onRefresh: () async {
-              var loadStateData =
-                  await Provider.of<ApplyListProvider>(context, listen: false)
-                      .getApplyListData(refresh: true);
-              _controller.finishRefresh();
+              await Provider.of<ApplyListProvider>(context, listen: false)
+                  .getApplyListData(refresh: true);
+              _controller.finishRefresh(noMore: false);
               _controller.resetLoadState();
             },
             onLoad: () async {
@@ -165,9 +136,82 @@ class _ManagerPageState extends State<ManagerPage> {
     );
   }
 
-  String getTimeString(String time, {String onNull}) {
-    return time == null
-        ? "${onNull ?? "无数据"}"
-        : "${DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.parse(time))}";
+  Future showApproveDialog(BuildContext context, ApplyDetail detail) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("审核"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: <Widget>[
+                Text.rich(TextSpan(
+                    text:
+                    "姓名：${detail.nickName}",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[800],
+                    ),
+                    children: [
+                      TextSpan(
+                        text:
+                        "(账号：${detail.userName})",
+                        style: TextStyle(
+                          color: Colors.red[400],
+                          fontSize: 13,
+                        ),
+                      )
+                    ])),
+                Text(
+                  "区域：${detail.districtName}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                Text(
+                  "申请时间：${getTimeString(detail.createTime)}",
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("取消"),
+              ),
+              GradientButton(
+                Text("通过"),
+                onPressed: () async {
+                  var baseResponse =
+                      await Api.applyApprove(
+                          id: detail.id, result: 1);
+                  showToast(baseResponse.text);
+                  Navigator.of(context).pop();
+                },
+              ),
+              GradientButton(
+                Text("拒绝"),
+                gradient: LinearGradient(colors: [
+                  Colors.red,
+                  Colors.red
+                ]),
+                onPressed: () async {
+                  var baseResponse =
+                      await Api.applyApprove(
+                          id: detail.id, result: 2);
+                  showToast(baseResponse.text);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        }).then((_){
+          _controller.callRefresh();
+    });
   }
+
 }

@@ -1,21 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:school/repo/AlertMessage.dart';
 import 'package:school/repo/Api.dart';
-import 'package:school/repo/ApplyDetail.dart';
 import 'package:school/repo/BlackLstDetail.dart';
-
-import 'SchoolAlertListProvider.dart';
 
 ///
 /// author : ciih
 /// date : 2019-08-27 16:08
 /// description :
 ///
-class ApplyListProvider extends ChangeNotifier {
-  List<ApplyDetail> message = [];
 
-  ApplyListProvider() {
-    //getApplyListData(refresh: true);
+class PoliceAlertListProvider extends ChangeNotifier {
+  List<AlertMessage> message = [];
+
+  PoliceAlertListProvider() {
+    //getBlackListData(refresh: true);
   }
 
   int page = 1;
@@ -23,7 +22,7 @@ class ApplyListProvider extends ChangeNotifier {
   bool loading = false;
   bool noMore = false;
 
-  Future<LoadStateData> getApplyListData({bool refresh}) async {
+  Future<LoadStateData> getPoliceAlertList({bool refresh}) async {
     if (loading) {
       return LoadStateData(true,noMore);
     }
@@ -36,15 +35,26 @@ class ApplyListProvider extends ChangeNotifier {
     if (noMore) {
       return LoadStateData(true,noMore);
     }
-    var baseResponse = await Api.getApplyListPageData(page, pageSize);
+    var baseResponse = await Api.getPoliceAlertMessageListPageData(page, pageSize);
     if (baseResponse.success) {
       final list = baseResponse.data.rows ?? [];
       message.addAll(list);
       page += 1;
       noMore = list.length < pageSize;
       notifyListeners();
+    }else{
+      showToast(baseResponse.text);
     }
     loading = false;
     return LoadStateData(baseResponse.success,noMore);
   }
+}
+
+
+class LoadStateData{
+  final bool success;
+  final bool noMore;
+
+  LoadStateData(this.success, this.noMore);
+
 }
