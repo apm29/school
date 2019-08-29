@@ -54,6 +54,7 @@ class UserInfoProvider extends ChangeNotifier {
   void logout() {
     this.token = null;
     this.userInfo = null;
+    userSp.setString(KEY_TOKEN, null);
     notifyListeners();
   }
 

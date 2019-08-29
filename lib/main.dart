@@ -122,6 +122,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     ScreenUtil(width: 1080, height: 2160)..init(context);
     return Scaffold(
       appBar: AppBar(
@@ -145,10 +146,6 @@ class _MyHomePageState extends State<MyHomePage>
             },
           )
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        label: Text("告警"),
       ),
       drawer: Drawer(
         child: Column(
@@ -260,6 +257,17 @@ class _MyHomePageState extends State<MyHomePage>
       ),
       body: Consumer<UserInfoProvider>(
         builder: (context, userModel, child) {
+          if (!userModel.isLogin) {
+            return Center(
+              child: FlatButton(
+                child: Text("登录"),
+                onPressed: () {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => LoginPage()));
+                },
+              ),
+            );
+          }
           return Consumer<PoliceAlertListProvider>(
             builder: (context, alertModel, child) {
               final list = alertModel.message;
