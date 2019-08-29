@@ -61,45 +61,46 @@ class MyApp extends StatelessWidget {
             primaryColorBrightness: Brightness.light,
             platform: TargetPlatform.iOS,
             appBarTheme: AppBarTheme(
-              brightness: Brightness.light,
-              color: Colors.white,
+              brightness: Brightness.dark,
+              color: Colors.blue,
               elevation: 8,
-              iconTheme: IconThemeData(color: Colors.blue, size: 12),
+              iconTheme: IconThemeData(color: Colors.white, size: 12),
               textTheme: TextTheme(
-                body1: TextStyle(fontSize: 11, color: Colors.grey),
+                body1: TextStyle(fontSize: 11, color: Colors.white),
                 body2: TextStyle(fontSize: 11),
                 subtitle: TextStyle(
-                  color: Colors.grey[200],
+                  color: Colors.white,
                 ),
+                title: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
             iconTheme: IconThemeData(color: Colors.blue),
           ),
-//          supportedLocales: [
-//            const Locale.fromSubtags(languageCode: 'zh'),
-//            // generic Chinese 'zh'
-//            const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
-//            // generic simplified Chinese 'zh_Hans'
-//            const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
-//            // generic traditional Chinese 'zh_Hant'
-//            const Locale.fromSubtags(
-//                languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),
-//            // 'zh_Hans_CN'
-//            const Locale.fromSubtags(
-//                languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'),
-//            // 'zh_Hant_TW'
-//            const Locale.fromSubtags(
-//                languageCode: 'zh', scriptCode: 'Hant', countryCode: 'HK'),
-//            // 'zh_Hant_HK'
-//          ],
-//          localizationsDelegates: [
-//            // ... app-specific localization delegate[s] here
-//            GlobalMaterialLocalizations.delegate,
-//            GlobalCupertinoLocalizations.delegate,
-//
-//            GlobalWidgetsLocalizations.delegate,
-//          ],
-//          locale: const Locale.fromSubtags(languageCode: 'zh'),
+          supportedLocales: [
+            const Locale.fromSubtags(languageCode: 'zh'),
+            // generic Chinese 'zh'
+            const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+            // generic simplified Chinese 'zh_Hans'
+            const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+            // generic traditional Chinese 'zh_Hant'
+            const Locale.fromSubtags(
+                languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),
+            // 'zh_Hans_CN'
+            const Locale.fromSubtags(
+                languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'),
+            // 'zh_Hant_TW'
+            const Locale.fromSubtags(
+                languageCode: 'zh', scriptCode: 'Hant', countryCode: 'HK'),
+            // 'zh_Hant_HK'
+          ],
+          localizationsDelegates: [
+            // ... app-specific localization delegate[s] here
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          locale: const Locale.fromSubtags(languageCode: 'zh'),
           home: MyHomePage(),
         ),
       ),
@@ -144,6 +145,10 @@ class _MyHomePageState extends State<MyHomePage>
             },
           )
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {},
+        label: Text("告警"),
       ),
       drawer: Drawer(
         child: Column(
@@ -295,10 +300,9 @@ class _MyHomePageState extends State<MyHomePage>
                                             onTap: () {
                                               Navigator.of(context).push(
                                                 MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      PicturePage(
-                                                          "${alertMessage.faceurl}",
-                                                          tag: tag),
+                                                  builder: (context) => PicturePage(
+                                                      "${alertMessage.faceurl}",
+                                                      tag: tag),
                                                 ),
                                               );
                                             },
@@ -327,6 +331,7 @@ class _MyHomePageState extends State<MyHomePage>
                                           Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
                                             children: <Widget>[
                                               Text.rich(TextSpan(
                                                   text:
@@ -364,17 +369,32 @@ class _MyHomePageState extends State<MyHomePage>
                                               Container(
                                                 color: Colors.grey[400],
                                                 height: 0.2,
-                                                margin: EdgeInsets.symmetric(vertical: 6),
-                                                width: ScreenUtil().setWidth(480),
+                                                margin: EdgeInsets.symmetric(
+                                                    vertical: 6),
+                                                width:
+                                                    ScreenUtil().setWidth(480),
                                               ),
                                               Text(
                                                 "回复人：${alertMessage.nickName ?? "--"}(${alertMessage.userName ?? "--"})",
                                               ),
-                                              Text(
-                                                "告警回复：${alertMessage.replyContent ?? "--"}",
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: ScreenUtil()
+                                                      .setWidth(540),
+                                                ),
+                                                child: Text(
+                                                  "回复时间：${getTimeString(alertMessage.replyTime, onNull: "--")}",
+                                                ),
                                               ),
-                                              Text(
-                                                "回复时间：${getTimeString(alertMessage.replyTime, onNull: "--")}",
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: ScreenUtil()
+                                                      .setWidth(500),
+                                                ),
+                                                child: Text(
+                                                  "告警回复：${alertMessage.replyContent ?? "--"}",
+                                                  maxLines: 10,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -385,10 +405,11 @@ class _MyHomePageState extends State<MyHomePage>
                                     ListTile(
                                       title: Text(
                                         "告警推送时间：\n${getTimeString("${alertMessage.sendtime}")}",
-                                        style:
-                                            Theme.of(context).textTheme.subtitle.copyWith(
-                                              fontWeight: FontWeight.w300
-                                            ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle
+                                            .copyWith(
+                                                fontWeight: FontWeight.w300),
                                       ),
                                       contentPadding: EdgeInsets.symmetric(
                                           horizontal: 16, vertical: 3),

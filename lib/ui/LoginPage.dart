@@ -24,7 +24,7 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with AutomaticKeepAliveClientMixin {
   final TextEditingController controllerMobile = TextEditingController();
 
   final TextEditingController controllerPassword = TextEditingController();
@@ -39,6 +39,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<LoadingProvider>(
       builder: (context, model, child) {
         return AnimatedSwitcher(
@@ -363,4 +364,7 @@ class _LoginPageState extends State<LoginPage> {
       showToast(baseResp.text);
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
