@@ -24,7 +24,7 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with AutomaticKeepAliveClientMixin {
+class _LoginPageState extends State<LoginPage>{
   final TextEditingController controllerMobile = TextEditingController();
 
   final TextEditingController controllerPassword = TextEditingController();
@@ -39,7 +39,6 @@ class _LoginPageState extends State<LoginPage> with AutomaticKeepAliveClientMixi
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Consumer<LoadingProvider>(
       builder: (context, model, child) {
         return AnimatedSwitcher(
@@ -133,7 +132,7 @@ class _LoginPageState extends State<LoginPage> with AutomaticKeepAliveClientMixi
                         margin: EdgeInsets.only(top: 6, left: 12, right: 12),
                         padding: EdgeInsets.all(6),
                         child: TextField(
-                          key: ValueKey("name"),
+                          key: ValueKey("name_login"),
                           focusNode: _focusNodeMobile,
                           controller: controllerMobile,
                           onChanged: (text) {
@@ -171,15 +170,13 @@ class _LoginPageState extends State<LoginPage> with AutomaticKeepAliveClientMixi
                         margin: EdgeInsets.only(top: 6, left: 12, right: 12),
                         padding: EdgeInsets.all(6),
                         child: TextField(
-                          key: ValueKey("pass"),
+                          key: ValueKey("password_login"),
                           focusNode: _focusNodePass,
                           obscureText: !_showPassword,
                           onChanged: (text) {
                             _passReady = text.isNotEmpty;
                           },
-                          keyboardType: _fastLogin
-                              ? TextInputType.number
-                              : TextInputType.text,
+                          keyboardType:TextInputType.text,
                           decoration: InputDecoration(
                             hintText: "输入${_fastLogin ? "验证码" : "密码"}",
                             labelText: "${_fastLogin ? "验证码" : "密码"}",

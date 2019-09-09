@@ -155,10 +155,10 @@ class Api {
   }
 
   static Future<BaseResponse<AlertMessageListPageData>>
-  getPoliceAlertMessageListPageData(
-      int page,
-      int rows,
-      ) {
+      getPoliceAlertMessageListPageData(
+    int page,
+    int rows,
+  ) {
     return DioUtil().post(
       "/business/alarmLog/getAlarmLog",
       formData: {
@@ -194,6 +194,7 @@ class Api {
 typedef processor<T> = T Function(dynamic json);
 
 const KEY_HEADER_TOKEN = "Authorization";
+const KEY_DEVICE_TOKEN = "DeviceToken";
 
 class DioUtil {
   DioUtil._() {
@@ -201,7 +202,7 @@ class DioUtil {
   }
 
   static bool proxyHttp = false;
-  static bool printLog = false;
+  static bool printLog = true;
   static DioUtil _instance;
 
   static DioUtil getInstance() {
@@ -325,7 +326,10 @@ class DioUtil {
       data: FormData.from(formData),
       options: RequestOptions(
         responseType: ResponseType.json,
-        headers: {KEY_HEADER_TOKEN: userSp.getString(KEY_TOKEN)},
+        headers: {
+          KEY_HEADER_TOKEN: userSp.getString(KEY_TOKEN),
+          KEY_DEVICE_TOKEN: userSp.getString(KEY_XG_PUSH_DEVICE_TOKEN),
+        },
         contentType: ContentType.json,
       ),
       cancelToken: cancelToken,
