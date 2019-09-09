@@ -172,7 +172,7 @@ class _LoginPageState extends State<LoginPage>{
                         child: TextField(
                           key: ValueKey("password_login"),
                           focusNode: _focusNodePass,
-                          obscureText: !_showPassword,
+                          obscureText: false,
                           onChanged: (text) {
                             _passReady = text.isNotEmpty;
                           },
@@ -188,9 +188,12 @@ class _LoginPageState extends State<LoginPage>{
                                 });
                                 SystemSound.play(SystemSoundType.click);
                               },
-                              child: Icon(_showPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
+                              child: Visibility(
+                                visible: false,
+                                child: Icon(_showPassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility),
+                              ),
                             ),
                             contentPadding: EdgeInsets.all(6),
                           ),

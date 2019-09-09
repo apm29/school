@@ -33,6 +33,7 @@ class PoliceAlertListProvider extends ChangeNotifier {
       message.clear();
     }
     if (noMore) {
+      loading = false;
       return LoadStateData(true,noMore);
     }
     var baseResponse = await Api.getPoliceAlertMessageListPageData(page, pageSize);

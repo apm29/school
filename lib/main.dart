@@ -55,6 +55,7 @@ class MyApp extends StatelessWidget {
         ],
         child: MaterialApp(
           title: '智安校园',
+          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             brightness: Brightness.light,
             primaryColor: Colors.blue,
@@ -262,8 +263,8 @@ class _MyHomePageState extends State<MyHomePage>
               child: FlatButton(
                 child: Text("登录"),
                 onPressed: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) => LoginPage()));
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => LoginPage()));
                 },
               ),
             );
@@ -341,35 +342,66 @@ class _MyHomePageState extends State<MyHomePage>
                                                 CrossAxisAlignment.start,
                                             mainAxisSize: MainAxisSize.min,
                                             children: <Widget>[
-                                              Text.rich(TextSpan(
-                                                  text:
-                                                      "姓名：${alertMessage.faceinfoname}",
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: ScreenUtil()
+                                                      .setWidth(540),
+                                                ),
+                                                child: Text.rich(
+                                                  TextSpan(
+                                                    text:
+                                                        "姓名：${alertMessage.faceinfoname}",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.grey[800],
+                                                    ),
+                                                    children: [
+                                                      TextSpan(
+                                                        text:
+                                                            "(分组：${alertMessage.facegroupname})",
+                                                        style: TextStyle(
+                                                          color: Colors.red[400],
+                                                          fontSize: 13,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  maxLines: 10,
+                                                ),
+                                              ),
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: ScreenUtil()
+                                                      .setWidth(540),
+                                                ),
+                                                child: Text(
+                                                  "区域：${alertMessage.districtName}",
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                     color: Colors.grey[800],
                                                   ),
-                                                  children: [
-                                                    TextSpan(
-                                                      text:
-                                                          "(分组：${alertMessage.facegroupname})",
-                                                      style: TextStyle(
-                                                        color: Colors.red[400],
-                                                        fontSize: 13,
-                                                      ),
-                                                    )
-                                                  ])),
-                                              Text(
-                                                "区域：${alertMessage.districtName}",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.grey[800],
+                                                  maxLines: 10,
                                                 ),
                                               ),
-                                              Text(
-                                                "年龄：${alertMessage.agegroup}",
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: ScreenUtil()
+                                                      .setWidth(540),
+                                                ),
+                                                child: Text(
+                                                  "年龄：${alertMessage.agegroup}",
+                                                  maxLines: 10,
+                                                ),
                                               ),
-                                              Text(
-                                                "性别：${alertMessage.faceinfosex}",
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: ScreenUtil()
+                                                      .setWidth(540),
+                                                ),
+                                                child: Text(
+                                                  "性别：${alertMessage.faceinfosex}",
+                                                  maxLines: 10,
+                                                ),
                                               ),
                                               Text(
                                                 "眼镜：${alertMessage.glassString}",
@@ -382,8 +414,15 @@ class _MyHomePageState extends State<MyHomePage>
                                                 width:
                                                     ScreenUtil().setWidth(480),
                                               ),
-                                              Text(
-                                                "回复人：${alertMessage.nickName ?? "--"}(${alertMessage.userName ?? "--"})",
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: ScreenUtil()
+                                                      .setWidth(540),
+                                                ),
+                                                child: Text(
+                                                  "回复人：${alertMessage.nickName ?? "--"}(${alertMessage.userName ?? "--"})",
+                                                  maxLines: 10,
+                                                ),
                                               ),
                                               ConstrainedBox(
                                                 constraints: BoxConstraints(
@@ -412,7 +451,7 @@ class _MyHomePageState extends State<MyHomePage>
                                     Divider(),
                                     ListTile(
                                       title: Text(
-                                        "告警推送时间：\n${getTimeString("${alertMessage.sendtime}")}",
+                                        "告警推送时间：\n${getTimeString(alertMessage.sendtime)}",
                                         style: Theme.of(context)
                                             .textTheme
                                             .subtitle
