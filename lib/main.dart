@@ -9,14 +9,28 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'package:school/Configs.dart';
+import 'package:school/providers/AlarmStatisticsListProvider.dart';
+import 'package:school/providers/BlackListProvider.dart';
+import 'package:school/providers/DominationListProvider.dart';
+import 'package:school/providers/GenderSelectorProvider.dart';
+import 'package:school/providers/MultiDistrictSelectorProvider.dart';
 import 'package:school/providers/NotificationProvider.dart';
+import 'package:school/providers/RuleAddProvider.dart';
+import 'package:school/providers/TypeSelectProvider.dart';
 import 'package:school/repo/AlertMessage.dart';
+import 'package:school/repo/AlertStatistics.dart';
 import 'package:school/repo/Api.dart';
-import 'package:school/ui/ManagerPage.dart';
+import 'package:school/repo/ApplyDetail.dart';
+import 'package:school/ui/AddDominationDistrictPage.dart';
+import 'package:school/ui/ApplyListManagerPage.dart';
 import 'package:school/providers/ApplyListProvider.dart';
 import 'package:school/providers/SchoolAlertListProvider.dart';
 import 'package:school/providers/UserInfoProvider.dart';
 import 'package:school/providers/LoadingProvider.dart';
+import 'package:school/ui/BlackListManagerPage.dart';
+import 'package:school/ui/DominationListManagerPage.dart';
+import 'package:school/ui/RuleAddPage.dart';
+import 'package:school/ui/StatisticsPage.dart';
 import 'package:school/ui/picture_page.dart';
 import 'package:school/widget/gradient_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,25 +48,34 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return OKToast(
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(
-            value: LoadingProvider(),
-          ),
-          ChangeNotifierProvider(
-            builder: (context) => UserInfoProvider(),
-          ),
-          ChangeNotifierProvider(
-            builder: (context) => PoliceAlertListProvider(),
-          ),
-          ChangeNotifierProvider(
-            builder: (context) => ApplyListProvider(),
-          ),
-          ChangeNotifierProvider(
-            builder: (context) => NotificationProvider(context),
-          )
-        ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(
+          value: LoadingProvider(),
+        ),
+        ChangeNotifierProvider(
+          builder: (context) => UserInfoProvider(),
+        ),
+        ChangeNotifierProvider(
+          builder: (context) => PoliceAlertListProvider(),
+        ),
+        ChangeNotifierProvider(
+          builder: (context) => ApplyListProvider(),
+        ),
+        ChangeNotifierProvider(
+          builder: (context) => AlarmStatisticsListProvider(),
+        ),
+        ChangeNotifierProvider(
+          builder: (context) => BlackListProvider(),
+        ),
+        ChangeNotifierProvider(
+          builder: (context) => DominationListProvider(),
+        ),
+        ChangeNotifierProvider(
+          builder: (context) => NotificationProvider(context),
+        )
+      ],
+      child: OKToast(
         child: MaterialApp(
           title: '智安校园',
           debugShowCheckedModeBanner: false,
@@ -122,6 +145,11 @@ class _MyHomePageState extends State<MyHomePage>
   TextEditingController _replyController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     ScreenUtil(width: 1080, height: 2160)..init(context);
@@ -136,12 +164,44 @@ class _MyHomePageState extends State<MyHomePage>
                   return [
                     PopupMenuItem(
                       value: 0,
-                      child: Text("管理审批"),
+                      child: Text("审核管理"),
+                    ),
+                    PopupMenuItem(
+                      value: 2,
+                      child: Text("名单管理"),
+                    ),
+//                    PopupMenuItem(
+//                      value: 4,
+//                      child: Text("辖区管理"),
+//                    ),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Text("添加告警人员"),
+                    ),
+                    PopupMenuItem(
+                      value: 3,
+                      child: Text("修改管辖学校"),
                     ),
                   ];
                 },
                 onSelected: (value) {
-                  goAdminPage(model, context);
+                  switch (value) {
+                    case 0:
+                      goAdminPage(model, context);
+                      return;
+                    case 1:
+                      goAddAlertPersonPage(model, context);
+                      return;
+                    case 2:
+                      goBlackListManagePage(model, context);
+                      return;
+                    case 3:
+                      goAddDominationDistrictPage(model, context);
+                      return;
+                    case 4:
+                      goDominationApplyListListPage(model, context);
+                      return;
+                  }
                 },
               );
             },
@@ -179,7 +239,10 @@ class _MyHomePageState extends State<MyHomePage>
                             SizedBox(
                               width: 8,
                             ),
-                            Text("${model.schoolString}")
+                            ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: ScreenUtil().setWidth(700)),
+                              child: Text("${model.schoolString}"),
+                            )
                           ],
                         ),
                       );
@@ -215,6 +278,36 @@ class _MyHomePageState extends State<MyHomePage>
                   color: Colors.blue,
                 ),
                 label: Text("审核管理"),
+              ),
+            ),
+            SizedBox(
+              height: 12,
+            ),
+            Consumer<UserInfoProvider>(
+              builder: (context, model, child) => FlatButton.icon(
+                onPressed: () {
+                  goBlackListManagePage(model, context);
+                },
+                icon: Icon(
+                  Icons.perm_contact_calendar,
+                  color: Colors.blue,
+                ),
+                label: Text("名单管理"),
+              ),
+            ),
+            SizedBox(
+              height: 12,
+            ),
+            Consumer<UserInfoProvider>(
+              builder: (context, model, child) => FlatButton.icon(
+                onPressed: () {
+                  goAlarmStatisticsPage(model, context);
+                },
+                icon: Icon(
+                  Icons.data_usage,
+                  color: Colors.blue,
+                ),
+                label: Text("告警统计"),
               ),
             ),
             Divider(),
@@ -277,11 +370,7 @@ class _MyHomePageState extends State<MyHomePage>
                 header: BezierCircleHeader(),
                 footer: classicalFooter,
                 child: list.length == 0
-                    ? Container(
-                        padding: EdgeInsets.symmetric(vertical: 32),
-                        alignment: Alignment.center,
-                        child: Text("暂无消息"),
-                      )
+                    ? buildState(userModel)
                     : ListView.builder(
                         itemBuilder: (context, index) {
                           var alertMessage = list[index];
@@ -304,6 +393,8 @@ class _MyHomePageState extends State<MyHomePage>
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 16, vertical: 5),
                                       child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: <Widget>[
                                           InkWell(
                                             onTap: () {
@@ -360,7 +451,8 @@ class _MyHomePageState extends State<MyHomePage>
                                                         text:
                                                             "(分组：${alertMessage.facegroupname})",
                                                         style: TextStyle(
-                                                          color: Colors.red[400],
+                                                          color:
+                                                              Colors.red[400],
                                                           fontSize: 13,
                                                         ),
                                                       )
@@ -414,41 +506,27 @@ class _MyHomePageState extends State<MyHomePage>
                                                 width:
                                                     ScreenUtil().setWidth(480),
                                               ),
-                                              ConstrainedBox(
-                                                constraints: BoxConstraints(
-                                                  maxWidth: ScreenUtil()
-                                                      .setWidth(540),
-                                                ),
-                                                child: Text(
-                                                  "回复人：${alertMessage.nickName ?? "--"}(${alertMessage.userName ?? "--"})",
-                                                  maxLines: 10,
-                                                ),
-                                              ),
-                                              ConstrainedBox(
-                                                constraints: BoxConstraints(
-                                                  maxWidth: ScreenUtil()
-                                                      .setWidth(540),
-                                                ),
-                                                child: Text(
-                                                  "回复时间：${getTimeString(alertMessage.replyTime, onNull: "--")}",
-                                                ),
-                                              ),
-                                              ConstrainedBox(
-                                                constraints: BoxConstraints(
-                                                  maxWidth: ScreenUtil()
-                                                      .setWidth(500),
-                                                ),
-                                                child: Text(
-                                                  "告警回复：${alertMessage.replyContent ?? "--"}",
-                                                  maxLines: 10,
-                                                ),
-                                              ),
                                             ],
                                           ),
                                         ],
                                       ),
                                     ),
                                     Divider(),
+                                    ...(alertMessage.reply.map((reply) {
+                                      return Container(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 6, horizontal: 12),
+                                        child: ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxWidth:
+                                                ScreenUtil().setWidth(980),
+                                          ),
+                                          child: Text(
+                                            reply.toString(),
+                                          ),
+                                        ),
+                                      );
+                                    }).toList()),
                                     ListTile(
                                       title: Text(
                                         "告警推送时间：\n${getTimeString(alertMessage.sendtime)}",
@@ -461,21 +539,9 @@ class _MyHomePageState extends State<MyHomePage>
                                       contentPadding: EdgeInsets.symmetric(
                                           horizontal: 16, vertical: 3),
                                       trailing: GradientButton(
-                                        Text(alertMessage.isReplied
-                                            ? "已回复"
-                                            : "回复"),
-                                        gradient: alertMessage.isReplied
-                                            ? LinearGradient(colors: [
-                                                Colors.grey,
-                                                Colors.grey
-                                              ])
-                                            : null,
+                                        Text("回复"),
                                         onPressed: () async {
                                           if (userModel.isSecurity) {
-                                            if (alertMessage.isReplied) {
-                                              showToast("已回复");
-                                              return;
-                                            }
                                             await showReplyDialog(
                                                 context, alertMessage);
                                           } else {
@@ -500,6 +566,11 @@ class _MyHomePageState extends State<MyHomePage>
                   await alertModel.getPoliceAlertList(refresh: true);
                   _controller.finishRefresh(noMore: false);
                   _controller.resetLoadState();
+                  var token = userSp.getString(KEY_TOKEN);
+                  if (token != null) {
+                    Provider.of<UserInfoProvider>(context, listen: false)
+                        .getUserInfoAndLogin(token);
+                  }
                 },
                 onLoad: () async {
                   var loadStateData =
@@ -514,6 +585,41 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  Widget buildState(UserInfoProvider userModel) {
+    return FutureBuilder<BaseResponse<ApplyDetail>>(
+      builder: (context, snapshot) {
+        if (snapshot.hasData &&
+            snapshot.data.success &&
+            userModel.schoolString == null) {
+          return Container(
+            child: Text.rich(
+              TextSpan(
+                text: "当前无归属学校,身份审核进度:",
+                children: [
+                  TextSpan(
+                    text: "${snapshot.data.data.statusString}",
+                    style: TextStyle(color: snapshot.data.data.statusColor),
+                  ),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.lightBlue[100],
+            ),
+            padding: EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+          );
+        }
+        return Container(
+          padding: EdgeInsets.symmetric(vertical: 32),
+          alignment: Alignment.center,
+          child: Text("暂无消息"),
+        );
+      },
+      future: Api.getUserApplyState(),
+    );
+  }
+
   void goAdminPage(UserInfoProvider model, BuildContext context) {
     if (model.isLogin && model.isAdmin) {
       Navigator.of(context).push(
@@ -523,6 +629,120 @@ class _MyHomePageState extends State<MyHomePage>
       );
     } else if (model.isLogin && !model.isAdmin) {
       showToast("您还未拥有管理权限");
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => LoginPage(),
+        ),
+      );
+    }
+  }
+
+  void goBlackListManagePage(UserInfoProvider model, BuildContext context) {
+    if (model.isLogin && model.isAdmin) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => BlackListManagerPage(),
+        ),
+      );
+    } else if (model.isLogin && !model.isAdmin) {
+      showToast("您还未拥有管理权限");
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => LoginPage(),
+        ),
+      );
+    }
+  }
+
+  void goAddAlertPersonPage(UserInfoProvider model, BuildContext context) {
+    if (model.isLogin && model.isSchoolRole) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MultiProvider(
+            providers: [
+              ChangeNotifierProvider(
+                builder: (context) => RuleAddProvider(),
+              ),
+              ChangeNotifierProvider(
+                builder: (context) => GenderSelectProvider(),
+              ),
+              ChangeNotifierProvider(
+                builder: (context) => TypeSelectProvider(),
+              )
+            ],
+            child: RuleAddPage(),
+          ),
+        ),
+      );
+    } else if (model.isLogin && !model.isSchoolRole) {
+      showToast("您还未拥有添加权限");
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => LoginPage(),
+        ),
+      );
+    }
+  }
+
+  //添加辖区
+  void goAddDominationDistrictPage(
+      UserInfoProvider model, BuildContext context) {
+    if (model.isLogin && model.isDistrictRulerRole) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MultiProvider(
+            providers: [
+              ChangeNotifierProvider(
+                builder: (context) => MultiDistrictSelectorProvider(),
+              ),
+            ],
+            child: AddDominationDistrictPage(),
+          ),
+        ),
+      );
+    } else if (model.isLogin && !model.isDistrictRulerRole) {
+      showToast("只有保安和普通民警可以添加下辖学校");
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => LoginPage(),
+        ),
+      );
+    }
+  }
+
+  void goDominationApplyListListPage(
+      UserInfoProvider model, BuildContext context) {
+    if (model.isLogin && model.isAdmin) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => DominationListManagerPage(),
+        ),
+      );
+    } else if (model.isLogin && !model.isAdmin) {
+      showToast("您还未拥有管理权限");
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => LoginPage(),
+        ),
+      );
+    }
+  }
+
+  void goAlarmStatisticsPage(UserInfoProvider model, BuildContext context) {
+    if (model.isLogin && model.isPoliceRole) {
+//      Navigator.of(context).push(
+//        MaterialPageRoute(
+//          builder: (context) => StatisticsPage(),
+//        ),
+//      );
+      showToast("请前往微信公众号查看该功能");
+    } else if (model.isLogin && !model.isPoliceRole) {
+      showToast("只有民警角色拥有查看权限");
     } else {
       Navigator.of(context).push(
         MaterialPageRoute(

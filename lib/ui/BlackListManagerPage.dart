@@ -7,9 +7,11 @@ import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'package:school/Utils.dart';
 import 'package:school/providers/ApplyListProvider.dart';
+import 'package:school/providers/BlackListProvider.dart';
 import 'package:school/providers/SchoolAlertListProvider.dart';
 import 'package:school/repo/Api.dart';
 import 'package:school/repo/ApplyDetail.dart';
+import 'package:school/repo/BlackLstDetail.dart';
 import 'package:school/widget/gradient_button.dart';
 
 ///
@@ -17,21 +19,21 @@ import 'package:school/widget/gradient_button.dart';
 /// date : 2019-08-28 09:09
 /// description :
 ///
-class ManagerPage extends StatefulWidget {
+class BlackListManagerPage extends StatefulWidget {
   @override
-  _ManagerPageState createState() => _ManagerPageState();
+  _BlackListManagerPageState createState() => _BlackListManagerPageState();
 }
 
-class _ManagerPageState extends State<ManagerPage> {
+class _BlackListManagerPageState extends State<BlackListManagerPage> {
   EasyRefreshController _controller = EasyRefreshController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("申请列表"),
+        title: Text("红白名单申请列表"),
       ),
-      body: Consumer<ApplyListProvider>(
+      body: Consumer<BlackListProvider>(
         builder: (context, model, child) {
           final list = model.message;
           return EasyRefresh(
@@ -50,7 +52,7 @@ class _ManagerPageState extends State<ManagerPage> {
                   )
                 : ListView.builder(
                     itemBuilder: (context, index) {
-                      var detail = list[index];
+                      BlackListsDetail detail = list[index];
                       return Container(
                         margin:
                             EdgeInsets.symmetric(vertical: 6, horizontal: 12),
@@ -59,9 +61,21 @@ class _ManagerPageState extends State<ManagerPage> {
                           color: Colors.white,
                           child: ListTile(
                             isThreeLine: true,
+                            leading: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: 48,
+                                maxHeight: 48,
+                                minHeight: 48,
+                                minWidth: 48,
+                              ),
+                              child: Image.network(
+                                detail.photo,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                             title: Text.rich(
                               TextSpan(
-                                text: "${detail.nickName}",
+                                text: "${detail.name}",
                                 children: [
                                   TextSpan(
                                     text: "(${detail.statusString})",
@@ -74,7 +88,7 @@ class _ManagerPageState extends State<ManagerPage> {
                                   ),
                                   TextSpan(
                                       text:
-                                          "\n(${detail.typeString} - ${detail.districtName})",
+                                          "\n(${detail.typeString} - 审核人: ${detail.approveName ?? "未审核"})",
                                       style:
                                           Theme.of(context).textTheme.caption),
                                 ],
@@ -85,7 +99,7 @@ class _ManagerPageState extends State<ManagerPage> {
                                 children: [
                                   TextSpan(
                                     text:
-                                        "审批时间:${getTimeString(detail.approveTime, onNull: "")}",
+                                        "审批时间:${getTimeString(detail.approveTime, onNull: "未审核")}",
                                     style: Theme.of(context)
                                         .textTheme
                                         .caption
@@ -96,19 +110,19 @@ class _ManagerPageState extends State<ManagerPage> {
                                 ],
                               ),
                             ),
-                            trailing: Text.rich(
-                              TextSpan(
-                                text:
-                                    "申请时间:${getTimeString(detail.createTime)}",
-                                children: [],
-                              ),
-                            ),
+//                            trailing: Text.rich(
+//                              TextSpan(
+//                                text:
+//                                    "通过时间:${getTimeString(detail.approveTime, onNull: "未通过")}",
+//                                children: [],
+//                              ),
+//                            ),
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 6),
                             onTap: () {
                               if (detail.status == 0) {
                                 showApproveDialog(context, detail);
-                              }else{
+                              } else {
                                 showToast("已审核");
                               }
                             },
@@ -119,14 +133,14 @@ class _ManagerPageState extends State<ManagerPage> {
                     itemCount: list.length,
                   ),
             onRefresh: () async {
-              await Provider.of<ApplyListProvider>(context, listen: false)
+              await Provider.of<BlackListProvider>(context, listen: false)
                   .getApplyListData(refresh: true);
               _controller.finishRefresh(noMore: false);
               _controller.resetLoadState();
             },
             onLoad: () async {
               var loadStateData =
-                  await Provider.of<ApplyListProvider>(context, listen: false)
+                  await Provider.of<BlackListProvider>(context, listen: false)
                       .getApplyListData(refresh: false);
               _controller.finishLoad(noMore: loadStateData.noMore);
             },
@@ -136,7 +150,8 @@ class _ManagerPageState extends State<ManagerPage> {
     );
   }
 
-  Future showApproveDialog(BuildContext context, ApplyDetail detail) async {
+  Future showApproveDialog(
+      BuildContext context, BlackListsDetail detail) async {
     showDialog(
         context: context,
         builder: (context) {
@@ -144,35 +159,45 @@ class _ManagerPageState extends State<ManagerPage> {
             title: Text("审核"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text.rich(TextSpan(
-                    text:
-                    "姓名：${detail.nickName}",
+                Container(
+                  constraints: BoxConstraints.tightFor(
+                    width: 128,height: 128
+                  ),
+                  child: Image.network(
+                    detail.photo,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Text.rich(
+                  TextSpan(
+                    text: "姓名：${detail.name}",
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[800],
                     ),
-                    children: [
-                      TextSpan(
-                        text:
-                        "(账号：${detail.userName})",
-                        style: TextStyle(
-                          color: Colors.red[400],
-                          fontSize: 13,
-                        ),
-                      )
-                    ])),
+                  ),
+                ),
                 Text(
-                  "区域：${detail.districtName}",
+                  "性别：${detail.sex}",
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[800],
                   ),
                 ),
                 Text(
-                  "申请时间：${getTimeString(detail.createTime)}",
+                  "类型：${detail.typeString}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                Text(
+                  "申请时间：${getTimeString(detail.time)}",
+                ),
+                Text(
+                  "申请理由：${detail.reason}",
                 ),
               ],
             ),
@@ -187,31 +212,25 @@ class _ManagerPageState extends State<ManagerPage> {
                 Text("通过"),
                 onPressed: () async {
                   var baseResponse =
-                      await Api.applyApprove(
-                          id: detail.id, result: 1);
+                      await Api.blackListApplyApprove(id: detail.id, result: 1);
                   showToast(baseResponse.text);
                   Navigator.of(context).pop();
                 },
               ),
               GradientButton(
                 Text("拒绝"),
-                gradient: LinearGradient(colors: [
-                  Colors.red,
-                  Colors.red
-                ]),
+                gradient: LinearGradient(colors: [Colors.red, Colors.red]),
                 onPressed: () async {
                   var baseResponse =
-                      await Api.applyApprove(
-                          id: detail.id, result: 2);
+                      await Api.blackListApplyApprove(id: detail.id, result: 0);
                   showToast(baseResponse.text);
                   Navigator.of(context).pop();
                 },
               ),
             ],
           );
-        }).then((_){
-          _controller.callRefresh();
+        }).then((_) {
+      _controller.callRefresh();
     });
   }
-
 }

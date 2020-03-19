@@ -1,29 +1,84 @@
 PODS:
+  - audioplayers (0.0.1):
+    - Flutter
   - fake_push (0.0.1):
     - FakeXinGePush (~> 3.3.5)
     - Flutter
   - FakeXinGePush (3.3.5)
   - Flutter (1.0.0)
+  - flutter_image_compress (0.0.1):
+    - Flutter
+    - Mantle
+  - flutter_ringtone_player (0.0.1):
+    - Flutter
+  - flutter_sound (0.0.1):
+    - Flutter
+  - image_picker (0.0.1):
+    - Flutter
+  - Mantle (2.1.1):
+    - Mantle/extobjc (= 2.1.1)
+  - Mantle/extobjc (2.1.1)
+  - path_provider (0.0.1):
+    - Flutter
+  - permission_handler (3.2.2):
+    - Flutter
+  - shared_preferences (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
+  - audioplayers (from `.symlinks/plugins/audioplayers/ios`)
   - fake_push (from `.symlinks/plugins/fake_push/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
+  - flutter_image_compress (from `.symlinks/plugins/flutter_image_compress/ios`)
+  - flutter_ringtone_player (from `.symlinks/plugins/flutter_ringtone_player/ios`)
+  - flutter_sound (from `.symlinks/plugins/flutter_sound/ios`)
+  - image_picker (from `.symlinks/plugins/image_picker/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - FakeXinGePush
+  trunk:
+    - Mantle
 
 EXTERNAL SOURCES:
+  audioplayers:
+    :path: ".symlinks/plugins/audioplayers/ios"
   fake_push:
     :path: ".symlinks/plugins/fake_push/ios"
   Flutter:
     :path: ".symlinks/flutter/ios"
+  flutter_image_compress:
+    :path: ".symlinks/plugins/flutter_image_compress/ios"
+  flutter_ringtone_player:
+    :path: ".symlinks/plugins/flutter_ringtone_player/ios"
+  flutter_sound:
+    :path: ".symlinks/plugins/flutter_sound/ios"
+  image_picker:
+    :path: ".symlinks/plugins/image_picker/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
 
 SPEC CHECKSUMS:
+  audioplayers: 84f968cea3f2deab00ec4f8ff53358b3c0b3992c
   fake_push: 38ae4deac561fc9829a00910840a920adfe53933
   FakeXinGePush: e68341a85f0d672bb93be592e37da18f2b02f611
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_image_compress: f69d0e0e078ce52b4810695593bc861ee319ae7d
+  flutter_ringtone_player: 15eba85187230b87b2512f0e1b92225618bc03e7
+  flutter_sound: 0e8163ceac1e00eb6d894e2ae4641ba726a2c479
+  image_picker: 16e5fec1fbc87fd3b297c53e4048521eaf17cd06
+  Mantle: 35238ae6f2e2b2d474fa7b67fee82a59fea71915
+  path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
+  permission_handler: d59f41439f5bc6c4d1005f3355e98f05ddc68ece
+  shared_preferences: 1feebfa37bb57264736e16865e7ffae7fc99b523
 
 PODFILE CHECKSUM: 10ae9c18d12c9ffc2275c9a159a3b1e281990db0
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.9.0.beta.2

@@ -53,10 +53,15 @@ class ApplyDetail {
 
   String get typeString => type == 1 ? "学校保安" : type == 2 ? "民警" : "未知身份";
 
-  get statusString => status == 0 ? "未审批" : status == 1 ? "已通过" : "审核被拒";
+  get statusString => status == 0 ? "审核中" : status == 1 ? "已通过" : "审核被拒";
 
   @override
   String toString() {
     return 'ApplyDetail{id: $id, userId: $userId, userName: $userName, nickName: $nickName, districtId: $districtId, districtName: $districtName, status: $status, approveUid: $approveUid, result: $result, createTime: $createTime, approveTime: $approveTime, type: $type}';
   }
+
+  ApplyDetail({this.id, this.userId, this.userName, this.nickName,
+      this.districtId, this.districtName, this.status, this.approveUid,
+      this.result, this.createTime, this.approveTime, this.type});
+
 }

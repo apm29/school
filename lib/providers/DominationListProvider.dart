@@ -3,6 +3,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:school/repo/Api.dart';
 import 'package:school/repo/ApplyDetail.dart';
 import 'package:school/repo/BlackLstDetail.dart';
+import 'package:school/repo/DominationApplyDetail.dart';
 
 import 'SchoolAlertListProvider.dart';
 
@@ -11,10 +12,10 @@ import 'SchoolAlertListProvider.dart';
 /// date : 2019-08-27 16:08
 /// description :
 ///
-class ApplyListProvider extends ChangeNotifier {
-  List<ApplyDetail> message = [];
+class DominationListProvider extends ChangeNotifier {
+  List<DominationApplyDetail> message = [];
 
-  ApplyListProvider() {
+  DominationListProvider() {
     //getApplyListData(refresh: true);
   }
 
@@ -37,7 +38,7 @@ class ApplyListProvider extends ChangeNotifier {
       loading = false;
       return LoadStateData(true, noMore);
     }
-    var baseResponse = await Api.getApplyListPageData(page, pageSize);
+    var baseResponse = await Api.getDominationApplyListPageData(page, pageSize);
     if (baseResponse.success) {
       final list = baseResponse.data.rows ?? [];
       message.addAll(list);

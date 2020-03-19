@@ -11,10 +11,10 @@ import 'SchoolAlertListProvider.dart';
 /// date : 2019-08-27 16:08
 /// description :
 ///
-class ApplyListProvider extends ChangeNotifier {
-  List<ApplyDetail> message = [];
+class BlackListProvider extends ChangeNotifier {
+  List<BlackListsDetail> message = [];
 
-  ApplyListProvider() {
+  BlackListProvider() {
     //getApplyListData(refresh: true);
   }
 
@@ -37,9 +37,9 @@ class ApplyListProvider extends ChangeNotifier {
       loading = false;
       return LoadStateData(true, noMore);
     }
-    var baseResponse = await Api.getApplyListPageData(page, pageSize);
+    var baseResponse = await Api.getBlackListPageData(page, pageSize);
     if (baseResponse.success) {
-      final list = baseResponse.data.rows ?? [];
+      final list = baseResponse.data.blackLists ?? [];
       message.addAll(list);
       page += 1;
       noMore = list.length < pageSize;

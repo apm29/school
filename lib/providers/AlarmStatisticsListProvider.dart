@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:school/repo/AlertStatistics.dart';
 import 'package:school/repo/Api.dart';
 import 'package:school/repo/ApplyDetail.dart';
 import 'package:school/repo/BlackLstDetail.dart';
@@ -11,10 +12,10 @@ import 'SchoolAlertListProvider.dart';
 /// date : 2019-08-27 16:08
 /// description :
 ///
-class ApplyListProvider extends ChangeNotifier {
-  List<ApplyDetail> message = [];
+class AlarmStatisticsListProvider extends ChangeNotifier {
+  List<AlertStatistics> message = [];
 
-  ApplyListProvider() {
+  AlarmStatisticsListProvider() {
     //getApplyListData(refresh: true);
   }
 
@@ -23,7 +24,7 @@ class ApplyListProvider extends ChangeNotifier {
   bool loading = false;
   bool noMore = false;
 
-  Future<LoadStateData> getApplyListData({bool refresh}) async {
+  Future<LoadStateData> getListData(String date,{bool refresh}) async {
     if (loading) {
       return LoadStateData(true, noMore);
     }
@@ -37,17 +38,23 @@ class ApplyListProvider extends ChangeNotifier {
       loading = false;
       return LoadStateData(true, noMore);
     }
-    var baseResponse = await Api.getApplyListPageData(page, pageSize);
-    if (baseResponse.success) {
-      final list = baseResponse.data.rows ?? [];
-      message.addAll(list);
-      page += 1;
-      noMore = list.length < pageSize;
-      notifyListeners();
-    } else {
-      showToast(baseResponse.text);
+    var baseResponse;
+    try {
+      baseResponse = await Api.getAlarmStatisticsListPageData(page, pageSize,date);
+      if (baseResponse.success) {
+            final list = baseResponse.data.rows ?? [];
+            message.addAll(list);
+            page += 1;
+            noMore = list.length < pageSize;
+            notifyListeners();
+          } else {
+            showToast(baseResponse.text);
+          }
+    } catch (e) {
+      print(e);
+    } finally {
+      loading = false;
     }
-    loading = false;
     return LoadStateData(baseResponse.success, noMore);
   }
 }

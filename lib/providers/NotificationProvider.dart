@@ -1,8 +1,11 @@
 import 'dart:async';
-
 import 'package:fake_push/fake_push.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'package:school/repo/Api.dart';
 
@@ -34,7 +37,70 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   NotificationProvider(BuildContext context) {
+    checkNotification(context);
+
     startListen(context);
+  }
+
+  var toastFuture;
+
+  void checkNotification(BuildContext context) async {
+    bool notificationEnabled = await _push.areNotificationsEnabled();
+    if (!notificationEnabled) {
+      toastFuture = showToastWidget(
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 32, horizontal: 40),
+            child: Material(
+              elevation: 3,
+              clipBehavior: Clip.antiAlias,
+              borderRadius: BorderRadius.all(Radius.circular(6)),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 22),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      '提示',
+                      style: Theme.of(context).textTheme.title.copyWith(color: Colors.blue),
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Divider(),
+                    Text(
+                      '请到系统设置页面开启通知权限,否则无法收到告警消息!',
+                      style: Theme.of(context).textTheme.body1,
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        FlatButton(
+                          child: const Text('取消'),
+                          onPressed: () {
+                            toastFuture?.dismiss();
+                          },
+                        ),
+                        FlatButton(
+                          child: const Text('设置',style: TextStyle(color: Colors.blue),),
+                          onPressed: () {
+                            toastFuture?.dismiss();
+                            _push.openNotificationsSettings();
+                          },
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          duration: Duration(hours: 1),
+          dismissOtherToast: true,
+          handleTouch: true);
+    }
   }
 
   static NotificationProvider of(BuildContext context) {
@@ -53,6 +119,11 @@ class NotificationProvider extends ChangeNotifier {
     });
     _receiveMessage = _push.receiveMessage().listen((Message msg) {
       print('>>>>>>>>>>>>>>>>>>>>Message:$msg');
+//      AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+//      AudioPlayer.logEnabled = true;
+//      audioPlayer.setReleaseMode(ReleaseMode.STOP);
+//      audioPlayer.play("audio.mp3", isLocal: true);
+//      FlutterRingtonePlayer.playRingtone(volume: 1,looping: false);
     });
     _receiveNotification = _push.receiveNotification().listen((Message msg) {
       print('>>>>>>>>>>>>>>>>>>>>Notification:$msg');
@@ -64,32 +135,6 @@ class NotificationProvider extends ChangeNotifier {
       print('>>>>>>>>>>>>>>>>>>>>resumeNotification:$msg');
     });
     _push.startWork();
-    bool notificationEnabled = await _push.areNotificationsEnabled();
-    if (!notificationEnabled) {
-      await showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('提示'),
-              content: const Text('开启通知权限可收到更多优质内容'),
-              actions: <Widget>[
-                FlatButton(
-                  child: const Text('取消'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                FlatButton(
-                  child: const Text('设置'),
-                  onPressed: () {
-                    _push.openNotificationsSettings();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          });
-    }
   }
 
   @override

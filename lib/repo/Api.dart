@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:school/Configs.dart';
 import 'package:school/repo/AlertMessageListPageData.dart';
+import 'package:school/repo/AlertStatisticsListPageData.dart';
+import 'package:school/repo/ApplyDetail.dart';
 import 'package:school/repo/ApplyListPageData.dart';
 import 'package:school/repo/BlackListPageData.dart';
+import 'package:school/repo/DominationApplyListPageData.dart';
 
 ///
 /// author : ciih
@@ -20,40 +23,53 @@ class Api {
   static Future<BaseResponse<UserInfoWrapper>> login(
       String userName, String password,
       {CancelToken cancelToken}) async {
-    return DioUtil().post<UserInfoWrapper>("/permission/login",
-        processor: (json) => UserInfoWrapper.fromJson(json),
-        formData: {
-          "userName": userName,
-          "password": password,
-        },
-        cancelToken: cancelToken);
+    return DioUtil().post<UserInfoWrapper>(
+      "/permission/login",
+      processor: (json) => UserInfoWrapper.fromJson(json),
+      formData: {
+        "userName": userName,
+        "password": password,
+      },
+      cancelToken: cancelToken,
+      userRawData: true,
+    );
   }
 
   static Future<BaseResponse<UserInfoWrapper>> fastLogin(
       String mobile, String verifyCode,
       {CancelToken cancelToken}) async {
-    return DioUtil().post<UserInfoWrapper>("/permission/fastLogin",
-        processor: (json) => UserInfoWrapper.fromJson(json),
-        formData: {
-          "mobile": mobile,
-          "verifyCode": verifyCode,
-        },
-        cancelToken: cancelToken);
+    return DioUtil().post<UserInfoWrapper>(
+      "/permission/fastLogin",
+      processor: (json) => UserInfoWrapper.fromJson(json),
+      formData: {
+        "mobile": mobile,
+        "verifyCode": verifyCode,
+      },
+      cancelToken: cancelToken,
+      userRawData: true,
+    );
   }
 
   static Future<BaseResponse<UserInfo>> getUserInfo(
       {CancelToken cancelToken}) async {
-    return DioUtil().post<UserInfo>("/permission/user/getUserInfo",
-        processor: (json) => UserInfo.fromJson(json), cancelToken: cancelToken);
+    return DioUtil().post<UserInfo>(
+      "/permission/user/getUserInfo",
+      processor: (json) => UserInfo.fromJson(json),
+      cancelToken: cancelToken,
+      userRawData: true,
+    );
   }
 
   ///type  0 注册 ,其他登录
   static Future<BaseResponse<Object>> sendSms(String mobile, int type,
       {CancelToken cancelToken}) async {
-    return DioUtil().post<Object>("/permission/user/getVerifyCode",
-        processor: (dynamic json) => null,
-        formData: {"mobile": mobile, "type": type},
-        cancelToken: cancelToken);
+    return DioUtil().post<Object>(
+      "/permission/user/getVerifyCode",
+      processor: (dynamic json) => null,
+      formData: {"mobile": mobile, "type": type},
+      cancelToken: cancelToken,
+      userRawData: true,
+    );
   }
 
   ///
@@ -79,6 +95,7 @@ class Api {
         "type": type,
       },
       cancelToken: cancelToken,
+      userRawData: true,
     );
   }
 
@@ -87,6 +104,20 @@ class Api {
       {int id, int result, CancelToken cancelToken}) async {
     return DioUtil().post(
       "/business/districtApprove/apply",
+      processor: (dynamic json) => null,
+      formData: {
+        "id": id,
+        "result": result,
+      },
+      cancelToken: cancelToken,
+    );
+  }
+
+  ///结果（1通过，0拒绝）
+  static Future<BaseResponse> blackListApplyApprove(
+      {int id, int result, CancelToken cancelToken}) async {
+    return DioUtil().post(
+      "/business/blacklist/approveBlackList",
       processor: (dynamic json) => null,
       formData: {
         "id": id,
@@ -189,13 +220,113 @@ class Api {
       },
     );
   }
+
+  static Future<BaseResponse<DominationApplyListPageData>>
+      getDominationApplyListPageData(int page, int rows, {int status}) {
+    var data = {
+      "page": page,
+      "rows": rows,
+    };
+    if (status != null) {
+      data['status'] = status;
+    }
+    return DioUtil().post(
+      "/business/districtApprove/getApplyList",
+      formData: data,
+      processor: (s) {
+        return DominationApplyListPageData.fromJsonMap(s);
+      },
+    );
+  }
+
+  static Future<BaseResponse<Object>> addBlackList(
+    String image,
+    String name,
+    String gender,
+    String reason,
+    int type,
+  ) {
+    var data = {
+      "name": name,
+      "sex": gender,
+      "photo": image,
+      "reason": reason,
+      "type": type
+    };
+    return DioUtil().post(
+      "/business/blacklist/addBlackList",
+      formData: data,
+      processor: (s) {
+        return null;
+      },
+    );
+  }
+
+  static Future<BaseResponse<ImageDetail>> uploadPic(String path,
+      {ProgressCallback onSendProgress}) async {
+    var file = File(path);
+    return DioUtil().post(
+      "/business/upload/uploadPic",
+      formData: {"pic": UploadFileInfo(file, file.path)},
+      processor: (s) => ImageDetail.fromJson(s),
+    );
+  }
+
+  ///id ===> '1,2,3' 字符串
+  static Future<BaseResponse<Object>> dominationDistrictApply(
+    String districtIds,
+    int type,
+  ) {
+    var data = {"districtIds": districtIds, "type": type};
+    return DioUtil().post(
+      "/business/districtApprove/addApply",
+      formData: data,
+      processor: (s) {
+        return null;
+      },
+    );
+  }
+
+  static Future<BaseResponse<ApplyDetail>> getUserApplyState() async {
+    return DioUtil().post(
+      "/business/districtApprove/judgeStatus",
+      processor: (s) {
+        return ApplyDetail.fromJsonMap(s);
+      },
+    );
+  }
+
+  static Future<BaseResponse> mock() async {
+    var response = BaseResponse.success();
+    response.data = ApplyDetail(status: 1);
+    return Future.delayed(Duration(seconds: 1)).then((_) {
+      return response;
+    });
+  }
+
+  static Future<BaseResponse<AlertStatisticsListPageData>> getAlarmStatisticsListPageData(
+      int page, int rows,String date) {
+    return DioUtil().post(
+      "/business/alarmLog/dataStatistics",
+      formData: {
+        "date":date,
+        "page": page,
+        "rows": rows,
+      },
+      processor: (s) {
+        return AlertStatisticsListPageData.fromJsonMap(s);
+      },
+    );
+  }
+
 }
 
 typedef processor<T> = T Function(dynamic json);
 
 const KEY_HEADER_TOKEN = "Authorization";
 const KEY_DEVICE_TOKEN = "DeviceToken";
-
+const VALUE_HEADER_CONTENT_TYPE = "application/x-www-form-urlencoded";
+const VALUE_HEADER_CONTENT_TYPE_FORM = "multipart/form-data";
 class DioUtil {
   DioUtil._() {
     init();
@@ -299,6 +430,7 @@ class DioUtil {
     bool showProgress = false,
     String loadingText,
     bool toastMsg = false,
+    bool userRawData = false,
   }) async {
     assert(!showProgress || loadingText != null);
     assert(processor != null);
@@ -330,7 +462,8 @@ class DioUtil {
           KEY_HEADER_TOKEN: userSp.getString(KEY_TOKEN),
           KEY_DEVICE_TOKEN: userSp.getString(KEY_XG_PUSH_DEVICE_TOKEN),
         },
-        contentType: ContentType.json,
+        contentType: ContentType.parse(VALUE_HEADER_CONTENT_TYPE_FORM),
+        //queryParameters: formData,
       ),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
@@ -564,6 +697,7 @@ class DistrictInfo {
   String districtPic;
   String companyId;
   String orderNo;
+  bool selected = false;
 
   DistrictInfo(
       {this.districtId,
@@ -618,4 +752,23 @@ class DistrictInfo {
       districtPic.hashCode ^
       companyId.hashCode ^
       orderNo.hashCode;
+}
+
+class ImageDetail {
+  String orginPicPath;
+  String thumbnailPath;
+
+  ImageDetail({this.orginPicPath, this.thumbnailPath});
+
+  ImageDetail.fromJson(Map<String, dynamic> json) {
+    orginPicPath = json['orginPicPath'];
+    thumbnailPath = json['thumbnailPath'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['orginPicPath'] = this.orginPicPath;
+    data['thumbnailPath'] = this.thumbnailPath;
+    return data;
+  }
 }

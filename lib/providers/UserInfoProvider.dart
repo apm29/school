@@ -19,7 +19,7 @@ class UserInfoProvider extends ChangeNotifier {
     if ((userInfo?.district?.length ?? 0) == 0) {
       return null;
     } else {
-      return userInfo?.district?.first?.districtName;
+      return userInfo?.district?.map((d) => d.districtName)?.join(",");
     }
   }
 
@@ -70,6 +70,12 @@ class UserInfoProvider extends ChangeNotifier {
           orElse: () => null) !=
       null;
 
+  bool get isSchoolRole =>
+      userInfo?.roles?.firstWhere(
+          (role) => role.roleCode == "8" || role.roleCode == "9",
+          orElse: () => null) !=
+      null;
+
   bool get isPoliceRole =>
       userInfo?.roles?.firstWhere(
           (role) => role.roleCode == "10" || role.roleCode == "11",
@@ -82,4 +88,10 @@ class UserInfoProvider extends ChangeNotifier {
       null;
 
   bool get isLogin => userInfo != null && token != null;
+
+  bool get isDistrictRulerRole =>
+      userInfo?.roles?.firstWhere(
+          (role) => role.roleCode == "8" || role.roleCode == "10",
+          orElse: () => null) !=
+      null;
 }
